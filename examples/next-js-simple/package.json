@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-3000}",
     "analyze": "BUNDLE_ANALYZE=both yarn build",
     "find:unused": "next-unused",
     "prettier": "prettier"

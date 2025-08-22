@@ -3,6 +3,7 @@ const bundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 module.exports = bundleAnalyzer({
+  output: 'standalone',
   images: {
     domains: ['cdn.builder.io'],
   },
