@@ -1,0 +1,46 @@
+name: Deploy to Koyeb
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'examples/next-js-simple/**'
+      - 'koyeb.yaml'
+      - '.github/workflows/deploy-koyeb.yml'
+
+  workflow_dispatch:
+
+env:
+  KOYEB_API_TOKEN: ${{ secrets.KOYEB_API_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Koyeb CLI
+        run: |
+          curl -LO https://github.com/koyeb/koyeb-cli/releases/latest/download/koyeb-cli_linux_amd64.tar.gz
+          tar -xzf koyeb-cli_linux_amd64.tar.gz
+          sudo mv koyeb /usr/local/bin/
+
+      - name: Deploy to Koyeb
+        run: |
+          koyeb service deploy \
+            --name builder-nextjs-app \
+            --git github.com/TeddyJubu/builder \
+            --git-branch main \
+            --git-workdir examples/next-js-simple \
+            --instance-type nano \
+            --port 8000:http \
+            --env PORT=8000 \
+            --env NODE_ENV=production \
+            --env BUILDER_PUBLIC_KEY="${{ secrets.BUILDER_PUBLIC_KEY }}" \
+            --docker-dockerfile Dockerfile \
+            --health-check-http-path / \
+            --scale-min 1 \
+            --scale-max 3

@@ -1,4 +1,3 @@
-import type { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import { useRouter } from 'next/router'
 import { BuilderComponent, builder, useIsPreviewing } from '@builder.io/react'
 import DefaultErrorPage from 'next/error'
@@ -11,7 +10,7 @@ builder.init(builderConfig.apiKey)
 
 export async function getStaticProps({
   params,
-}: GetStaticPropsContext<{ page: string[] }>) {
+}) {
   const page =
     (await builder
       .get('page', {
@@ -33,20 +32,17 @@ export async function getStaticProps({
 }
 
 export async function getStaticPaths() {
-  const pages = await builder.getAll('page', {
-    options: { noTargeting: true },
-    omit: 'data.blocks',
-  })
-
+  // Don't pre-render any pages at build time
+  // All pages will be generated on-demand
   return {
-    paths: pages.map((page) => `${page.data?.url}`),
-    fallback: true,
+    paths: [],
+    fallback: 'blocking',
   }
 }
 
 export default function Page({
   page,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}) {
   const router = useRouter()
   const isPreviewingInBuilder = useIsPreviewing()
   const show404 = !page && !isPreviewingInBuilder
